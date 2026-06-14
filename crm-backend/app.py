@@ -121,5 +121,10 @@ def campaign_analytics(campaign_id):
 def campaigns():
 
     return get_all_campaigns()
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000))
+    )
