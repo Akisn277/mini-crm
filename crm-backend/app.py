@@ -3,6 +3,9 @@ from flask_cors import CORS
 import mysql.connector
 from dotenv import load_dotenv
 import os
+import threading
+import random
+import requests
 from flask import request
 from services.ai_service import generate_campaign
 from services.segment_service import find_customers
@@ -23,6 +26,49 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+
+def send_callback(campaign_id, customer_count):
+
+    for i in range(customer_count):
+
+        requests.post(
+            "http://127.0.0.1:5000/receipt",
+            json={
+                "campaign_id": campaign_id,
+                "event": "delivered"
+            }
+        )
+
+    opened_count = random.randint(
+        int(customer_count * 0.5),
+        int(customer_count * 0.8)
+    )
+
+    for i in range(opened_count):
+
+        requests.post(
+            "http://127.0.0.1:5000/receipt",
+            json={
+                "campaign_id": campaign_id,
+                "event": "opened"
+            }
+        )
+
+    clicked_count = random.randint(
+        int(opened_count * 0.1),
+        int(opened_count * 0.3)
+    )
+
+    for i in range(clicked_count):
+
+        requests.post(
+            "http://127.0.0.1:5000/receipt",
+            json={
+                "campaign_id": campaign_id,
+                "event": "clicked"
+            }
+        )
 
 db = mysql.connector.connect(
     host=os.getenv("DB_HOST"),

@@ -1,7 +1,7 @@
 import mysql.connector
 from dotenv import load_dotenv
 import os
-import requests
+import threading
 
 load_dotenv()
 
@@ -91,19 +91,19 @@ def send_to_channel_service(
     channel
 ):
 
-    print("INSIDE CHANNEL FUNCTION")
+    from __main__ import send_callback
 
-    response = requests.post(
-        "http://127.0.0.1:5001/send",
-        json={
-            "campaign_id": campaign_id,
-            "customer_count": len(customers),
-            "message": message,
-            "channel": channel
-        }
-    )
+    threading.Thread(
+        target=send_callback,
+        args=(
+            campaign_id,
+            len(customers)
+        )
+    ).start()
 
-    print("CHANNEL RESPONSE:", response.status_code)
+    return {
+        "status": "accepted"
+    }
 
 
 def save_event(
